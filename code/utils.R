@@ -1,3 +1,22 @@
+percent_change <- function(x) {
+  (exp(x) - 1) * 100
+}
+
+confint <- function(est, se, level = 0.95) {
+  
+  a <- (1 - level)/2
+  a <- c(a, 1 - a)
+  ci = est + se %o% qnorm(a)
+  return(ci)
+}
+
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+
+
 RR <- function(est) {
   class(est) <- c("RR", "estimate")
   est
@@ -572,4 +591,52 @@ summary.evalue = function( object, ... ) {
 print.evalue = function( x, ... ) {
   class(x) <- "matrix" # to suppress attr printing
   print.default(x)
+}
+
+# identify US census region from state code
+statecode_to_region = function(statecode){
+  #' New England census division
+  .new_england <- c("CT", "MA", "ME", "NH", "RI", "VT")
+  #' Mid-Atlantic census division
+  .mid_atlantic <- c("NJ", "NY", "PA")
+  
+  #' East North Central census division
+  .east_north_central <- c("IL", "IN", "MI", "OH", "WI")
+  #' West North Central census division
+  .west_north_central <- c("IA", "KS", "MN", "MO", "NE", "ND", "SD")
+  
+  #' South Atlantic census division
+  .south_atlantic <- c("DC", "DE", "FL", "GA", "MD", "NC", "SC", "VA", "WV")
+  #' East South Central census division
+  .east_south_central <- c("AL", "KY", "MS", "TN")
+  #' West South Central census division
+  .west_south_central <- c("AR", "LA", "OK", "TX")
+  
+  #' Mountain census division
+  .mountain <- c("AZ", "CO", "ID", "MT", "NV", "NM", "UT", "WY")
+  #' Pacific census division
+  .pacific <- c("AK", "CA", "HI", "OR", "WA")
+  
+  #' Northeast census region
+  .northeast_region <- c(.new_england, .mid_atlantic)
+  #' North-Central census region
+  .north_central_region <- c(.east_north_central, .west_north_central)
+  #' Midwest census region
+  .midwest_region <- .north_central_region
+  #' South census region
+  .south_region <- c(.south_atlantic, .east_south_central, .west_south_central)
+  #' West census region
+  .west_region <- c(.mountain, .pacific)
+  
+  USregions = c("NE", "MW", "S", "W")
+  n = length(statecode)
+  out = c()
+  for(i in 1:n){
+    out[i] = USregions[which(c(statecode[i] %in% .northeast_region,
+                               statecode[i] %in% .midwest_region,
+                               statecode[i] %in% .south_region,
+                               statecode[i] %in% .west_region))]
+  }
+  
+  return(out)
 }
